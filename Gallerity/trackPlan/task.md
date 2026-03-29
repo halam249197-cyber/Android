@@ -8,8 +8,8 @@ Dự án ứng dụng thư viện ảnh thông minh `Gallerity` với package `c
   - [x] Thêm các thư viện (Dependencies): Hilt, Room, Coil, ViewModel, Navigation Compose.
   - [x] Cấu hình Material Design 3 Theme (Màu sắc, Typography, Shape).
   - [x] Xử lý xin quyền hệ thống `READ_MEDIA_IMAGES` (và `READ_MEDIA_VISUAL_USER_SELECTED` cho Android 14).
-  - [/] Viết hàm đọc ảnh gốc từ `MediaStore` (Sắp xếp theo Ngày/Tháng/Năm tạo).
-  - [ ] Giao diện màn hình Home (Lưới ảnh).
+  - [x] Viết hàm đọc ảnh gốc từ `MediaStore` (Sắp xếp theo Ngày/Tháng/Năm tạo).
+  - [/] Giao diện màn hình Home (Lưới ảnh).
   - [ ] Giao diện màn hình liệt kê các Folder cục bộ trong máy.
 
 - [ ] **Giai đoạn 2: Tích hợp ML Offline & Quản lý Album**
