@@ -15,9 +15,10 @@ Dự án ứng dụng thư viện ảnh thông minh `Gallerity` với package `c
 - [ ] **Giai đoạn 2: Tích hợp ML Offline & Quản lý Album**
   - [x] Thiết lập Room Database cơ sở (`MediaMetadataEntity`, `Dao`) và Hilt Module.
   - [x] Xây dựng `MlKitScannerWorker` để quét nền thầm lặng (Idle/Charging) cho Face & Image Labeling.
-  - [/] Thiết kế cơ chế nhập mã PIN dự phòng vào `DataStore`.
-  - [ ] Tích hợp `BiometricPrompt` kết hợp mã PIN cho UI Security Folder.
-  - [ ] Cập nhật `HomeScreen` chia thành các Album (Thùng rác, Khuôn mặt, Chó mèo, Security).
+  - [x] Nhập mã PIN dự phòng vào `DataStore`.
+  - [x] Tích hợp `BiometricPrompt` kết hợp mã PIN cho Thư mục ẩn.
+  - [x] Giao diện `SecurityScreen` (Bàn phím PIN / Mở khoá).
+  - [/] Cập nhật `HomeScreen` chia thành các Album (Thùng rác, Khuôn mặt, Chó mèo, Security).
   - [ ] Màn hình chi tiết ảnh mượt mà kèm Navigation trượt.
   - [ ] Nút Mở app Edit ảnh mặc định qua Intent.
   - [ ] Màn hình Cài đặt (Đổi Theme, Setting mật khẩu, Xóa rác, Version info).
