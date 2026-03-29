@@ -81,3 +81,4 @@ dependencies {
     // Phase 2: Security & Preferences (Biometric & DataStore)
     implementation("androidx.biometric:biometric:1.1.0")
     implementation("androidx.datastore:datastore-preferences:1.0.0")
+}

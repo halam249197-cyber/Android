@@ -1,6 +1,7 @@
 package com.halam.gallerity.di
 
 import android.content.Context
+import com.halam.gallerity.data.local.dao.MediaMetadataDao
 import com.halam.gallerity.data.repository.MediaRepositoryImpl
 import com.halam.gallerity.domain.repository.MediaRepository
 import com.halam.gallerity.domain.usecase.GetMediaFilesUseCase
@@ -26,8 +27,9 @@ object AppModule {
     @Provides
     @Singleton
     fun provideGetMediaFilesUseCase(
-        repository: MediaRepository
+        repository: MediaRepository,
+        metadataDao: MediaMetadataDao
     ): GetMediaFilesUseCase {
-        return GetMediaFilesUseCase(repository)
+        return GetMediaFilesUseCase(repository, metadataDao)
     }
 }

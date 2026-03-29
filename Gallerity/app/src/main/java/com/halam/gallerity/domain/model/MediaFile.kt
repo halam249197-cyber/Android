@@ -9,5 +9,9 @@ data class MediaFile(
     val size: Long,
     val mimeType: String,
     val dateAdded: Long,
-    val folderName: String
+    val folderName: String,
+    val isSecured: Boolean = false,
+    val isTrashed: Boolean = false,
+    val tags: String = "",
+    val faceCount: Int = 0
 )
