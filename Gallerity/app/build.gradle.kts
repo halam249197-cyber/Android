@@ -72,4 +72,12 @@ dependencies {
     // Google ML Kit (Face/Scene detection)
     implementation("com.google.mlkit:face-detection:16.1.7")
     implementation("com.google.mlkit:image-labeling:17.0.9")
-}
+
+    // Phase 2: Background Processing (WorkManager + Hilt integration)
+    implementation("androidx.work:work-runtime-ktx:2.9.0")
+    implementation("androidx.hilt:hilt-work:1.2.0")
+    ksp("androidx.hilt:hilt-compiler:1.2.0")
+
+    // Phase 2: Security & Preferences (Biometric & DataStore)
+    implementation("androidx.biometric:biometric:1.1.0")
+    implementation("androidx.datastore:datastore-preferences:1.0.0")
