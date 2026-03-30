@@ -66,5 +66,14 @@ fun AppNavigation(viewModel: NavigationViewModel = hiltViewModel()) {
                 else -> { /* Loading or Error — handled by parent */ }
             }
         }
+        composable("ai_chat") {
+            com.halam.gallerity.presentation.ai.AIChatScreen(
+                onBack = { navController.popBackStack() },
+                onNavigateToSearch = { query ->
+                    // For now, simple return, later can pass to a search screen or filter home
+                    navController.popBackStack() 
+                }
+            )
+        }
     }
 }

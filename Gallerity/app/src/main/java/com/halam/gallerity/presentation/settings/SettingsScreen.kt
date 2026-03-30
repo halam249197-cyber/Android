@@ -10,6 +10,8 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Lock
+import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -29,9 +31,11 @@ fun SettingsScreen() {
     val securityViewModel: SecurityViewModel = hiltViewModel()
     val isPinSet by securityViewModel.isPinSet.collectAsState()
     val authMethod by securityViewModel.authMethod.collectAsState()
+    val geminiApiKey by securityViewModel.geminiApiKey.collectAsState()
 
     var showChangePinScreen by remember { mutableStateOf(false) }
     var showResetConfirm by remember { mutableStateOf(false) }
+    var showGeminiKeyDialog by remember { mutableStateOf(false) }
 
     val appVersion = remember {
         try {
@@ -122,6 +126,41 @@ fun SettingsScreen() {
 
             Spacer(modifier = Modifier.height(24.dp))
 
+            // ── AI Configuration ──
+            Text(
+                text = "Trợ lý ảo (AI)",
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.Bold,
+                color = MaterialTheme.colorScheme.primary,
+                modifier = Modifier.padding(bottom = 8.dp)
+            )
+
+            Surface(
+                shape = RoundedCornerShape(16.dp),
+                tonalElevation = 2.dp,
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                ListItem(
+                    headlineContent = { Text("Gemini API Key") },
+                    supportingContent = {
+                        Text(
+                            if (geminiApiKey.isNullOrBlank()) "Chưa thiết lập (Bắt buộc cho Chatbot)"
+                            else "Đã thiết lập (••••" + geminiApiKey?.takeLast(4) + ")"
+                        )
+                    },
+                    leadingContent = {
+                        Icon(
+                            if (geminiApiKey.isNullOrBlank()) Icons.Default.Warning else Icons.Default.Settings,
+                            contentDescription = null,
+                            tint = if (geminiApiKey.isNullOrBlank()) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurface
+                        )
+                    },
+                    modifier = Modifier.clickable { showGeminiKeyDialog = true }
+                )
+            }
+
+            Spacer(modifier = Modifier.height(24.dp))
+
             // ── Storage Section ──
             Text(
                 text = "Bộ nhớ",
@@ -198,6 +237,44 @@ fun SettingsScreen() {
             },
             dismissButton = {
                 TextButton(onClick = { showResetConfirm = false }) {
+                    Text("Hủy")
+                }
+            },
+            shape = RoundedCornerShape(24.dp)
+        )
+    }
+
+    // Gemini API Key Dialog
+    if (showGeminiKeyDialog) {
+        var inputKey by remember { mutableStateOf(geminiApiKey ?: "") }
+        AlertDialog(
+            onDismissRequest = { showGeminiKeyDialog = false },
+            title = { Text("Thiết lập API Key") },
+            text = {
+                Column {
+                    Text("Nhập mã Gemini API Key từ Google AI Studio để kích hoạt tính năng Chatbot thông minh.")
+                    Spacer(modifier = Modifier.height(16.dp))
+                    OutlinedTextField(
+                        value = inputKey,
+                        onValueChange = { inputKey = it },
+                        label = { Text("API Key") },
+                        singleLine = true,
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                }
+            },
+            confirmButton = {
+                Button(
+                    onClick = {
+                        securityViewModel.saveGeminiApiKey(inputKey.trim())
+                        showGeminiKeyDialog = false
+                    }
+                ) {
+                    Text("Lưu")
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showGeminiKeyDialog = false }) {
                     Text("Hủy")
                 }
             },

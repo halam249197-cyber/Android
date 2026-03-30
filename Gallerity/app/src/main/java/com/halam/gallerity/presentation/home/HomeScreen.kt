@@ -24,7 +24,8 @@ import com.halam.gallerity.presentation.security.SecurityScreen
 @Composable
 fun HomeScreen(
     viewModel: HomeViewModel = hiltViewModel(),
-    onImageClick: (Long) -> Unit = {}
+    onImageClick: (Long) -> Unit = {},
+    onChatBotClick: () -> Unit = {}
 ) {
     val uiState by viewModel.uiState.collectAsState()
     var selectedTabIndex by remember { mutableIntStateOf(0) }
@@ -41,7 +42,7 @@ fun HomeScreen(
         },
         floatingActionButton = {
             FloatingActionButton(
-                onClick = { /* TODO: AI Chatbot in Phase 4 */ },
+                onClick = onChatBotClick,
                 containerColor = MaterialTheme.colorScheme.primaryContainer
             ) {
                 Text(text = "✨", modifier = Modifier.padding(16.dp))

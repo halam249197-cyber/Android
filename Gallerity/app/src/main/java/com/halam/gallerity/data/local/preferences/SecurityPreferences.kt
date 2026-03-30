@@ -25,6 +25,10 @@ class SecurityPreferences @Inject constructor(@ApplicationContext context: Conte
         preferences[AUTH_METHOD_KEY]
     }
 
+    val geminiApiKeyFlow: Flow<String?> = dataStore.data.map { preferences ->
+        preferences[GEMINI_API_KEY]
+    }
+
     val isFirstLaunchFlow: Flow<Boolean> = dataStore.data.map { preferences ->
         preferences[FIRST_LAUNCH_KEY] ?: true
     }
@@ -41,6 +45,12 @@ class SecurityPreferences @Inject constructor(@ApplicationContext context: Conte
         }
     }
 
+    suspend fun saveGeminiApiKey(key: String) {
+        dataStore.edit { preferences ->
+            preferences[GEMINI_API_KEY] = key
+        }
+    }
+
     suspend fun setFirstLaunchCompleted() {
         dataStore.edit { preferences ->
             preferences[FIRST_LAUNCH_KEY] = false
@@ -53,6 +63,7 @@ class SecurityPreferences @Inject constructor(@ApplicationContext context: Conte
 
         private val PIN_KEY = stringPreferencesKey("security_pin")
         private val AUTH_METHOD_KEY = stringPreferencesKey("auth_method")
+        private val GEMINI_API_KEY = stringPreferencesKey("gemini_api_key")
         private val FIRST_LAUNCH_KEY = booleanPreferencesKey("first_launch")
     }
 }

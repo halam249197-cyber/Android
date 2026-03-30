@@ -62,6 +62,9 @@ fun MainScreen(rootNavController: NavHostController) {
                 HomeScreen(
                     onImageClick = { mediaId ->
                         rootNavController.navigate("image_detail/$mediaId")
+                    },
+                    onChatBotClick = {
+                        rootNavController.navigate("ai_chat")
                     }
                 )
             }

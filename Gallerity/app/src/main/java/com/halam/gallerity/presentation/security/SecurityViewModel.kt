@@ -21,6 +21,9 @@ class SecurityViewModel @Inject constructor(
     private val _authMethod = MutableStateFlow<String?>(null)
     val authMethod = _authMethod.asStateFlow()
 
+    private val _geminiApiKey = MutableStateFlow<String?>("")
+    val geminiApiKey = _geminiApiKey.asStateFlow()
+
     private val _currentInput = MutableStateFlow("")
     val currentInput = _currentInput.asStateFlow()
 
@@ -39,6 +42,7 @@ class SecurityViewModel @Inject constructor(
             val savedPin = securityPreferences.pinCodeFlow.first()
             _isPinSet.value = savedPin != null
             _authMethod.value = securityPreferences.authMethodFlow.first()
+            _geminiApiKey.value = securityPreferences.geminiApiKeyFlow.first()
         }
     }
 
@@ -100,5 +104,12 @@ class SecurityViewModel @Inject constructor(
         _isUnlocked.value = false
         _currentInput.value = ""
         _errorMsg.value = null
+    }
+
+    fun saveGeminiApiKey(key: String) {
+        viewModelScope.launch {
+            securityPreferences.saveGeminiApiKey(key)
+            _geminiApiKey.value = key
+        }
     }
 }
