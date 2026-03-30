@@ -5,8 +5,8 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Backspace
-import androidx.compose.material.icons.filled.Fingerprint
+import androidx.compose.material.icons.filled.Clear
+import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -60,7 +60,7 @@ fun SecurityScreen(
             verticalArrangement = Arrangement.Center
         ) {
             Icon(
-                imageVector = Icons.Default.Fingerprint,
+                imageVector = Icons.Default.Lock,
                 contentDescription = "Lock",
                 modifier = Modifier.size(64.dp),
                 tint = MaterialTheme.colorScheme.primary
@@ -114,9 +114,9 @@ fun SecurityScreen(
             Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
                 for (row in numbers) {
                     Row(
-                        horizontalArrangement = Arrangement.spacedBy(24.dp),
+                        horizontalArrangement = Arrangement.spacedBy(24.dp, Alignment.CenterHorizontally),
                         modifier = Modifier.fillMaxWidth(),
-                        horizontalAlignment = Alignment.CenterHorizontally
+                        verticalAlignment = Alignment.CenterVertically
                     ) {
                         for (number in row) {
                             NumberButton(number = number.toString()) {
@@ -126,9 +126,9 @@ fun SecurityScreen(
                     }
                 }
                 Row(
-                    horizontalArrangement = Arrangement.spacedBy(24.dp),
+                    horizontalArrangement = Arrangement.spacedBy(24.dp, Alignment.CenterHorizontally),
                     modifier = Modifier.fillMaxWidth(),
-                    horizontalAlignment = Alignment.CenterHorizontally
+                    verticalAlignment = Alignment.CenterVertically
                 ) {
                     Box(modifier = Modifier.size(72.dp), contentAlignment = Alignment.Center) {
                         if (isPinSet == true) {
@@ -140,14 +140,14 @@ fun SecurityScreen(
                                     onFallbackToPin = { }, onError = { }
                                 )
                             }) {
-                                Icon(Icons.Default.Fingerprint, contentDescription = "Biometric", tint = MaterialTheme.colorScheme.primary)
+                                Icon(Icons.Default.Lock, contentDescription = "Biometric", tint = MaterialTheme.colorScheme.primary)
                             }
                         }
                     }
                     NumberButton(number = "0") { viewModel.onNumberPadClick(0) }
                     Box(modifier = Modifier.size(72.dp), contentAlignment = Alignment.Center) {
                         IconButton(onClick = { viewModel.onDeleteClick() }) {
-                            Icon(Icons.Default.Backspace, contentDescription = "Delete", tint = MaterialTheme.colorScheme.onBackground)
+                            Icon(Icons.Default.Clear, contentDescription = "Delete", tint = MaterialTheme.colorScheme.onBackground)
                         }
                     }
                 }

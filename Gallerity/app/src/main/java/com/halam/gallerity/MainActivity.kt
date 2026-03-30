@@ -24,7 +24,7 @@ class MainActivity : FragmentActivity() {
                         modifier = Modifier.fillMaxSize(),
                         color = MaterialTheme.colorScheme.background
                     ) {
-                        HomeScreen()
+                        com.halam.gallerity.presentation.navigation.AppNavigation()
                     }
                 }
             }

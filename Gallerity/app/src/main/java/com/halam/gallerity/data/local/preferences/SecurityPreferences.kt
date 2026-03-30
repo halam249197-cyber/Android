@@ -20,13 +20,24 @@ class SecurityPreferences @Inject constructor(@ApplicationContext context: Conte
         preferences[PIN_KEY]
     }
 
+    val isFirstLaunchFlow: Flow<Boolean> = dataStore.data.map { preferences ->
+        preferences[FIRST_LAUNCH_KEY] ?: true
+    }
+
     suspend fun savePinCode(pin: String) {
         dataStore.edit { preferences ->
             preferences[PIN_KEY] = pin
         }
     }
 
+    suspend fun setFirstLaunchCompleted() {
+        dataStore.edit { preferences ->
+            preferences[FIRST_LAUNCH_KEY] = false
+        }
+    }
+
     companion object {
         private val PIN_KEY = stringPreferencesKey("security_pin")
+        private val FIRST_LAUNCH_KEY = androidx.datastore.preferences.core.booleanPreferencesKey("first_launch")
     }
 }
