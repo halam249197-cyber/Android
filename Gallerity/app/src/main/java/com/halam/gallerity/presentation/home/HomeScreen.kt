@@ -116,11 +116,18 @@ fun HomeScreen(
 @Composable
 fun SecurityScreenWrapper(securedMedia: List<MediaFile>) {
     var isUnlocked by remember { mutableStateOf(false) }
+    val viewModel: com.halam.gallerity.presentation.security.SecurityViewModel = hiltViewModel()
+
+    // Every time this composable enters (tab switch resets via key()),
+    // force the ViewModel to clear its stale unlock state
+    LaunchedEffect(Unit) {
+        viewModel.resetUnlockState()
+    }
 
     if (isUnlocked) {
         PhotoGrid(securedMedia)
     } else {
-        SecurityScreen(onUnlockSuccess = { isUnlocked = true })
+        SecurityScreen(viewModel = viewModel, onUnlockSuccess = { isUnlocked = true })
     }
 }
 

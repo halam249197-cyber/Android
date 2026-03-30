@@ -94,4 +94,11 @@ class SecurityViewModel @Inject constructor(
     fun setUnlockedDirectly() {
         _isUnlocked.value = true
     }
+
+    /** Reset lock state — called every time Security tab is re-entered */
+    fun resetUnlockState() {
+        _isUnlocked.value = false
+        _currentInput.value = ""
+        _errorMsg.value = null
+    }
 }
