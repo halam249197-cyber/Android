@@ -18,6 +18,9 @@ class SecurityViewModel @Inject constructor(
     private val _isPinSet = MutableStateFlow<Boolean?>(null)
     val isPinSet = _isPinSet.asStateFlow()
 
+    private val _authMethod = MutableStateFlow<String?>(null)
+    val authMethod = _authMethod.asStateFlow()
+
     private val _currentInput = MutableStateFlow("")
     val currentInput = _currentInput.asStateFlow()
 
@@ -27,10 +30,15 @@ class SecurityViewModel @Inject constructor(
     private val _errorMsg = MutableStateFlow<String?>(null)
     val errorMsg = _errorMsg.asStateFlow()
 
+    // After PIN is created in setup mode, show dialog asking for fingerprint
+    private val _showFingerprintSetupDialog = MutableStateFlow(false)
+    val showFingerprintSetupDialog = _showFingerprintSetupDialog.asStateFlow()
+
     init {
         viewModelScope.launch {
             val savedPin = securityPreferences.pinCodeFlow.first()
             _isPinSet.value = savedPin != null
+            _authMethod.value = securityPreferences.authMethodFlow.first()
         }
     }
 
@@ -54,11 +62,13 @@ class SecurityViewModel @Inject constructor(
             val isSetupMode = _isPinSet.value == false
 
             if (isSetupMode) {
+                // Save PIN and ask user which auth method they want
                 securityPreferences.savePinCode(input)
                 _isPinSet.value = true
                 _currentInput.value = ""
-                _isUnlocked.value = true // Tu dong thao khoa
+                _showFingerprintSetupDialog.value = true
             } else {
+                // Unlock mode: verify PIN
                 val savedPin = securityPreferences.pinCodeFlow.first()
                 if (savedPin == input) {
                     _errorMsg.value = null
@@ -69,6 +79,15 @@ class SecurityViewModel @Inject constructor(
                     _currentInput.value = ""
                 }
             }
+        }
+    }
+
+    fun onChooseAuthMethod(method: String) {
+        viewModelScope.launch {
+            securityPreferences.saveAuthMethod(method)
+            _authMethod.value = method
+            _showFingerprintSetupDialog.value = false
+            _isUnlocked.value = true
         }
     }
 

@@ -26,7 +26,7 @@ fun HomeScreen(
     viewModel: HomeViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
-    var selectedTabIndex by remember { mutableStateOf(0) }
+    var selectedTabIndex by remember { mutableIntStateOf(0) }
     val tabs = listOf("Tất cả", "Album (AI)", "Thùng rác", "Bảo mật")
 
     Scaffold(
@@ -97,9 +97,15 @@ fun HomeScreen(
                 is HomeUiState.Success -> {
                     when (selectedTabIndex) {
                         0 -> PhotoGrid(state.media.filter { !it.isSecured && !it.isTrashed })
-                        1 -> AlbumList(state.media.filter { !it.isSecured && !it.isTrashed })
+                        1 -> AiAlbumList(state.media.filter { !it.isSecured && !it.isTrashed })
                         2 -> PhotoGrid(state.media.filter { it.isTrashed })
-                        3 -> SecurityScreenWrapper(state.media.filter { it.isSecured })
+                        3 -> {
+                            // key(selectedTabIndex) forces recomposition when tab changes,
+                            // which resets isUnlocked to false → strict lock
+                            key(selectedTabIndex) {
+                                SecurityScreenWrapper(state.media.filter { it.isSecured })
+                            }
+                        }
                     }
                 }
             }
@@ -148,28 +154,73 @@ fun PhotoGrid(mediaFiles: List<MediaFile>) {
     }
 }
 
+/**
+ * AI Album - ONLY shows ML Kit generated categories.
+ * Does NOT show physical device folders.
+ */
 @Composable
-fun AlbumList(mediaFiles: List<MediaFile>) {
-    val folders = mutableMapOf<String, List<MediaFile>>()
-    
-    // Core Folders từ máy tính
-    mediaFiles.groupBy { it.folderName }.forEach { (name, files) ->
-        folders[name] = files
+fun AiAlbumList(mediaFiles: List<MediaFile>) {
+    val aiAlbums = remember(mediaFiles) {
+        val albums = mutableListOf<Pair<String, List<MediaFile>>>()
+
+        val facePhotos = mediaFiles.filter { it.faceCount > 0 }
+        if (facePhotos.isNotEmpty()) albums.add("Khuôn mặt 👤" to facePhotos)
+
+        val naturePhotos = mediaFiles.filter {
+            it.tags.contains("nature", true) ||
+            it.tags.contains("plant", true) ||
+            it.tags.contains("sky", true) ||
+            it.tags.contains("flower", true) ||
+            it.tags.contains("tree", true)
+        }
+        if (naturePhotos.isNotEmpty()) albums.add("Thiên nhiên 🌲" to naturePhotos)
+
+        val animalPhotos = mediaFiles.filter {
+            it.tags.contains("dog", true) ||
+            it.tags.contains("cat", true) ||
+            it.tags.contains("animal", true) ||
+            it.tags.contains("pet", true)
+        }
+        if (animalPhotos.isNotEmpty()) albums.add("Thú cưng 🐶" to animalPhotos)
+
+        val foodPhotos = mediaFiles.filter {
+            it.tags.contains("food", true) ||
+            it.tags.contains("meal", true) ||
+            it.tags.contains("dish", true)
+        }
+        if (foodPhotos.isNotEmpty()) albums.add("Ẩm thực 🍜" to foodPhotos)
+
+        val vehiclePhotos = mediaFiles.filter {
+            it.tags.contains("car", true) ||
+            it.tags.contains("vehicle", true) ||
+            it.tags.contains("motorcycle", true)
+        }
+        if (vehiclePhotos.isNotEmpty()) albums.add("Phương tiện 🚗" to vehiclePhotos)
+
+        albums.sortedByDescending { it.second.size }
     }
 
-    // AI Labeling Albums từ sức mạnh của ML Kit
-    val facePhotos = mediaFiles.filter { it.faceCount > 0 }
-    if (facePhotos.isNotEmpty()) folders["Khuôn mặt 👤"] = facePhotos
-
-    val naturePhotos = mediaFiles.filter { it.tags.contains("nature", true) || it.tags.contains("plant", true) || it.tags.contains("sky", true) }
-    if (naturePhotos.isNotEmpty()) folders["Thiên nhiên 🌲"] = naturePhotos
-
-    val animalPhotos = mediaFiles.filter { it.tags.contains("dog", true) || it.tags.contains("cat", true) || it.tags.contains("animal", true) }
-    if (animalPhotos.isNotEmpty()) folders["Thú cưng 🐶"] = animalPhotos
-
-    if (folders.isEmpty()) {
+    if (aiAlbums.isEmpty()) {
         Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-            Text("Chưa có album nào", color = MaterialTheme.colorScheme.onSurfaceVariant)
+            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                CircularProgressIndicator(
+                    modifier = Modifier.size(48.dp),
+                    color = MaterialTheme.colorScheme.primary
+                )
+                Spacer(modifier = Modifier.height(16.dp))
+                Text(
+                    text = "AI đang quét ảnh của bạn...",
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Bold
+                )
+                Spacer(modifier = Modifier.height(8.dp))
+                Text(
+                    text = "Quá trình quét sẽ diễn ra khi máy rảnh hoặc đang sạc.\nVui lòng quay lại sau.",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.padding(horizontal = 32.dp)
+                )
+            }
         }
         return
     }
@@ -181,10 +232,9 @@ fun AlbumList(mediaFiles: List<MediaFile>) {
         verticalArrangement = Arrangement.spacedBy(16.dp),
         modifier = Modifier.fillMaxSize()
     ) {
-        val folderList = folders.entries.toList().sortedByDescending { it.value.size }
-        items(folderList, key = { it.key }) { (folderName, files) ->
+        items(aiAlbums, key = { it.first }) { (albumName, files) ->
             Column(
-                modifier = Modifier.clickable { /* TODO: Open Folder */ }
+                modifier = Modifier.clickable { /* TODO: Open AI Album Detail */ }
             ) {
                 val coverImage = files.firstOrNull()?.uri
                 Box(
@@ -196,7 +246,7 @@ fun AlbumList(mediaFiles: List<MediaFile>) {
                     if (coverImage != null) {
                         AsyncImage(
                             model = coverImage,
-                            contentDescription = folderName,
+                            contentDescription = albumName,
                             contentScale = ContentScale.Crop,
                             modifier = Modifier.fillMaxSize()
                         )
@@ -204,7 +254,7 @@ fun AlbumList(mediaFiles: List<MediaFile>) {
                 }
                 Spacer(modifier = Modifier.height(8.dp))
                 Text(
-                    text = folderName,
+                    text = albumName,
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.Bold
                 )
