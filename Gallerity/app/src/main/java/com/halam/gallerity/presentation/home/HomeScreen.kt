@@ -23,7 +23,8 @@ import com.halam.gallerity.presentation.security.SecurityScreen
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreen(
-    viewModel: HomeViewModel = hiltViewModel()
+    viewModel: HomeViewModel = hiltViewModel(),
+    onImageClick: (Long) -> Unit = {}
 ) {
     val uiState by viewModel.uiState.collectAsState()
     var selectedTabIndex by remember { mutableIntStateOf(0) }
@@ -96,7 +97,7 @@ fun HomeScreen(
                 }
                 is HomeUiState.Success -> {
                     when (selectedTabIndex) {
-                        0 -> PhotoGrid(state.media.filter { !it.isSecured && !it.isTrashed })
+                        0 -> PhotoGrid(state.media.filter { !it.isSecured && !it.isTrashed }, onImageClick = onImageClick)
                         1 -> AiAlbumList(state.media.filter { !it.isSecured && !it.isTrashed })
                         2 -> PhotoGrid(state.media.filter { it.isTrashed })
                         3 -> {
@@ -132,7 +133,7 @@ fun SecurityScreenWrapper(securedMedia: List<MediaFile>) {
 }
 
 @Composable
-fun PhotoGrid(mediaFiles: List<MediaFile>) {
+fun PhotoGrid(mediaFiles: List<MediaFile>, onImageClick: (Long) -> Unit = {}) {
     if (mediaFiles.isEmpty()) {
         Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
             Text("Không có ảnh nào", color = MaterialTheme.colorScheme.onSurfaceVariant)
@@ -155,7 +156,7 @@ fun PhotoGrid(mediaFiles: List<MediaFile>) {
                 modifier = Modifier
                     .aspectRatio(1f)
                     .clip(RoundedCornerShape(8.dp))
-                    .clickable { /* TODO: Open Image Details Phase 3 */ }
+                    .clickable { onImageClick(media.id) }
             )
         }
     }

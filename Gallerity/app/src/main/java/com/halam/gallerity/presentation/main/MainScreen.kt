@@ -59,7 +59,11 @@ fun MainScreen(rootNavController: NavHostController) {
             modifier = Modifier.padding(padding)
         ) {
             composable("home") {
-                HomeScreen()
+                HomeScreen(
+                    onImageClick = { mediaId ->
+                        rootNavController.navigate("image_detail/$mediaId")
+                    }
+                )
             }
             composable("calendar") {
                 CalendarScreen(

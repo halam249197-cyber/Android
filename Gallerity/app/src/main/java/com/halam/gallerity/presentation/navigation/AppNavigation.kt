@@ -8,15 +8,17 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.halam.gallerity.presentation.onboarding.OnboardingScreen
-
-// Placeholder MainScreen for execution continuity
-import com.halam.gallerity.presentation.home.HomeScreen
+import com.halam.gallerity.presentation.detail.ImageDetailScreen
+import com.halam.gallerity.presentation.home.HomeUiState
+import com.halam.gallerity.presentation.home.HomeViewModel
+import java.time.Instant
+import java.time.ZoneId
 
 @Composable
 fun AppNavigation(viewModel: NavigationViewModel = hiltViewModel()) {
     val isFirstLaunch by viewModel.isFirstLaunch.collectAsState(initial = null)
-    
-    // Hold drawing implicitly while resolving async SharedPrefs
+
+    // Hold drawing while resolving async SharedPrefs
     if (isFirstLaunch == null) return
 
     val navController = rememberNavController()
@@ -30,7 +32,6 @@ fun AppNavigation(viewModel: NavigationViewModel = hiltViewModel()) {
                 onFinishOnboarding = {
                     viewModel.completeFirstLaunch()
                     navController.navigate("main") {
-                        // Prevent back press from returning to Onboarding
                         popUpTo("onboarding") { inclusive = true }
                     }
                 }
@@ -40,11 +41,30 @@ fun AppNavigation(viewModel: NavigationViewModel = hiltViewModel()) {
             com.halam.gallerity.presentation.main.MainScreen(navController)
         }
         composable("day_photos/{timestamp}") { backStackEntry ->
-            val timestamp = backStackEntry.arguments?.getString("timestamp")?.toLongOrNull() ?: System.currentTimeMillis()
+            val timestamp = backStackEntry.arguments?.getString("timestamp")?.toLongOrNull()
+                ?: System.currentTimeMillis()
             com.halam.gallerity.presentation.calendar.DayPhotosScreen(
                 timestamp = timestamp,
                 onBack = { navController.popBackStack() }
             )
+        }
+        composable("image_detail/{mediaId}") { backStackEntry ->
+            val mediaId = backStackEntry.arguments?.getString("mediaId")?.toLongOrNull() ?: 0L
+            val homeViewModel: HomeViewModel = hiltViewModel()
+            val uiState by homeViewModel.uiState.collectAsState()
+
+            when (val state = uiState) {
+                is HomeUiState.Success -> {
+                    val visibleMedia = state.media.filter { !it.isSecured && !it.isTrashed }
+                    val initialIndex = visibleMedia.indexOfFirst { it.id == mediaId }.coerceAtLeast(0)
+                    ImageDetailScreen(
+                        mediaFiles = visibleMedia,
+                        initialIndex = initialIndex,
+                        onBack = { navController.popBackStack() }
+                    )
+                }
+                else -> { /* Loading or Error — handled by parent */ }
+            }
         }
     }
 }
