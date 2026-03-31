@@ -11,6 +11,7 @@ import com.halam.gallerity.presentation.onboarding.OnboardingScreen
 import com.halam.gallerity.presentation.detail.ImageDetailScreen
 import com.halam.gallerity.presentation.home.HomeUiState
 import com.halam.gallerity.presentation.home.HomeViewModel
+import com.halam.gallerity.presentation.search.SearchScreen
 import java.time.Instant
 import java.time.ZoneId
 
@@ -70,8 +71,18 @@ fun AppNavigation(viewModel: NavigationViewModel = hiltViewModel()) {
             com.halam.gallerity.presentation.ai.AIChatScreen(
                 onBack = { navController.popBackStack() },
                 onNavigateToSearch = { query ->
-                    // For now, simple return, later can pass to a search screen or filter home
-                    navController.popBackStack() 
+                    // Navigate to search screen with Gemini's NLP parameters
+                    navController.navigate("search_photos/$query")
+                }
+            )
+        }
+        composable("search_photos/{query}") { backStackEntry ->
+            val query = backStackEntry.arguments?.getString("query") ?: ""
+            SearchScreen(
+                query = query,
+                onBack = { navController.popBackStack() },
+                onImageClick = { mediaId ->
+                    navController.navigate("image_detail/$mediaId")
                 }
             )
         }

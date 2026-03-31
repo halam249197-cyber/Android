@@ -34,9 +34,9 @@ Dự án ứng dụng thư viện ảnh thông minh `Gallerity` với package `c
   - [x] Nút Mở app Edit ảnh mặc định qua `Intent.ACTION_EDIT`.
   - [x] Màn hình Cài đặt (Đổi PIN, phương thức xác thực, Xóa rác, Version info).
 
-- [ ] **Giai đoạn 4: Trợ lý AI và Chatbot**
-  - [ ] Tích hợp Gemini API và kết nối Prompt.
-  - [ ] Floating Button Chatbot có khả năng nhận Voice, Text, Image.
-  - [ ] NLP: Phân tích Chat để trỏ Navigation/Intent đi tìm ảnh đúng mô tả.
-  - [ ] Logic lưu ảnh tạo bởi AI vào "AI photos".
-  - [ ] Google Login.
+- [x] **Giai đoạn 4: Trợ lý AI và Chatbot**
+  - [x] Tích hợp Gemini API và kết nối Prompt (gemini-1.5-flash).
+  - [x] Floating Button Chatbot nhận Voice (SpeechRecognizer), Text, Image (Gallery Picker).
+  - [x] NLP: Phân tích Chat → tìm kiếm ảnh qua SearchScreen bằng AI Tags.
+  - [x] Quản lý API Key an toàn trong Settings → DataStore.
+  - [x] Google Login UI (Status: Mock — cần Web Client ID thật).

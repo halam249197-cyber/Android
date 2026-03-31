@@ -1,8 +1,10 @@
 package com.halam.gallerity.presentation.ai
 
+import android.graphics.Bitmap
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.ai.client.generativeai.GenerativeModel
+import com.google.ai.client.generativeai.type.content
 import com.halam.gallerity.data.local.preferences.SecurityPreferences
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -55,25 +57,34 @@ class ChatViewModel @Inject constructor(
         }
     }
 
-    fun sendMessage(userText: String, onNavigateToSearch: (String) -> Unit) {
+    fun sendMessage(userText: String, imageBitmap: Bitmap? = null, onNavigateToSearch: (String) -> Unit) {
         val currentModel = generativeModel
         if (currentModel == null) {
             _messages.value += ChatMessage(text = "Lỗi: Không tìm thấy API Key.", isUser = false)
             return
         }
 
-        val userMessage = ChatMessage(text = userText, isUser = true)
+        val userMessage = ChatMessage(text = userText, isUser = true, attachment = imageBitmap)
         _messages.value += userMessage
         _isTyping.value = true
 
         viewModelScope.launch {
             try {
-                // Keep the chat history by sending all previous messages in a multi-turn chat
-                val chat = currentModel.startChat()
+                // For this demo, prepend the system prompt implicitly to ensure JSON enforcement
+                val fullText = "$systemPrompt\n\n---\nNghiêm ngặt tuân thủ bộ luật trên, phản hồi yêu cầu sau:\n$userText"
                 
-                // For this demo, prepend the system prompt implicitly to ensure JSON enforcement without requiring systemInstruction parameter support
-                val fullPrompt = "$systemPrompt\n\n---\nNghiêm ngặt tuân thủ bộ luật trên, hãy phản hồi yêu cầu sau đây của người dùng:\n$userText"
-                val response = chat.sendMessage(fullPrompt)
+                val response = if (imageBitmap != null) {
+                    currentModel.generateContent(
+                        content {
+                            image(imageBitmap)
+                            text(fullText)
+                        }
+                    )
+                } else {
+                    val chat = currentModel.startChat()
+                    chat.sendMessage(fullText)
+                }
+                
                 val responseText = response.text ?: ""
 
                 // NLP JSON Parsing fallback

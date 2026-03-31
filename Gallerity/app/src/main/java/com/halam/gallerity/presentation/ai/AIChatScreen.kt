@@ -1,20 +1,30 @@
 package com.halam.gallerity.presentation.ai
 
+import android.graphics.Bitmap
+import android.graphics.ImageDecoder
+import android.net.Uri
+import android.os.Build
+import android.os.Bundle
 import android.content.Context
 import android.content.Intent
-import android.os.Bundle
+import android.provider.MediaStore
 import android.speech.RecognitionListener
 import android.speech.RecognizerIntent
 import android.speech.SpeechRecognizer
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.Send
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -22,6 +32,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -42,6 +54,21 @@ fun AIChatScreen(
     var inputText by remember { mutableStateOf("") }
     val context = LocalContext.current
     var isListening by remember { mutableStateOf(false) }
+    var attachedBitmap by remember { mutableStateOf<Bitmap?>(null) }
+    val listState = rememberLazyListState()
+
+    val imagePickerLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.GetContent()
+    ) { uri: Uri? ->
+        uri?.let {
+            attachedBitmap = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+                ImageDecoder.decodeBitmap(ImageDecoder.createSource(context.contentResolver, it))
+            } else {
+                @Suppress("DEPRECATION")
+                MediaStore.Images.Media.getBitmap(context.contentResolver, it)
+            }
+        }
+    }
 
     val speechRecognizer = remember { SpeechRecognizer.createSpeechRecognizer(context) }
     
@@ -89,6 +116,9 @@ fun AIChatScreen(
                     text = inputText,
                     onTextChange = { inputText = it },
                     isListening = isListening,
+                    attachedBitmap = attachedBitmap,
+                    onAttachClick = { imagePickerLauncher.launch("image/*") },
+                    onClearAttachment = { attachedBitmap = null },
                     onMicClick = {
                         if (isListening) {
                             speechRecognizer.stopListening()
@@ -102,9 +132,10 @@ fun AIChatScreen(
                         }
                     },
                     onSend = {
-                        if (inputText.isNotBlank()) {
-                            viewModel.sendMessage(inputText, onNavigateToSearch)
+                        if (inputText.isNotBlank() || attachedBitmap != null) {
+                            viewModel.sendMessage(inputText, attachedBitmap, onNavigateToSearch)
                             inputText = ""
+                            attachedBitmap = null
                         }
                     }
                 )
@@ -119,6 +150,7 @@ fun AIChatScreen(
         ) {
             LazyColumn(
                 modifier = Modifier.weight(1f),
+                state = listState,
                 contentPadding = PaddingValues(16.dp),
                 verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
@@ -173,11 +205,28 @@ fun ChatBubble(message: ChatMessage) {
                 )
                 .padding(12.dp)
         ) {
-            Text(
-                text = message.text,
-                color = if (isUser) MaterialTheme.colorScheme.onPrimary 
-                        else MaterialTheme.colorScheme.onSurface
-            )
+            Column {
+                // Show attached image if any
+                message.attachment?.let { bitmap ->
+                    Image(
+                        bitmap = bitmap.asImageBitmap(),
+                        contentDescription = "Attached image",
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .heightIn(max = 200.dp)
+                            .clip(RoundedCornerShape(8.dp)),
+                        contentScale = ContentScale.Crop
+                    )
+                    if (message.text.isNotBlank()) Spacer(modifier = Modifier.height(8.dp))
+                }
+                if (message.text.isNotBlank()) {
+                    Text(
+                        text = message.text,
+                        color = if (isUser) MaterialTheme.colorScheme.onPrimary 
+                                else MaterialTheme.colorScheme.onSurface
+                    )
+                }
+            }
         }
     }
 }
@@ -205,6 +254,9 @@ fun ChatInputBar(
     text: String,
     onTextChange: (String) -> Unit,
     isListening: Boolean,
+    attachedBitmap: Bitmap?,
+    onAttachClick: () -> Unit,
+    onClearAttachment: () -> Unit,
     onMicClick: () -> Unit,
     onSend: () -> Unit
 ) {
@@ -212,12 +264,37 @@ fun ChatInputBar(
         tonalElevation = 8.dp,
         modifier = Modifier.fillMaxWidth()
     ) {
-        Row(
-            modifier = Modifier
-                .padding(horizontal = 8.dp, vertical = 8.dp)
-                .navigationBarsPadding(),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
+        Column(modifier = Modifier.navigationBarsPadding()) {
+            // Attachement preview above input
+            if (attachedBitmap != null) {
+                Row(
+                    modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Image(
+                        bitmap = attachedBitmap.asImageBitmap(),
+                        contentDescription = "Attachment preview",
+                        modifier = Modifier
+                            .size(60.dp)
+                            .clip(RoundedCornerShape(8.dp)),
+                        contentScale = ContentScale.Crop
+                    )
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text("1 ảnh đính kèm", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.primary)
+                    Spacer(modifier = Modifier.weight(1f))
+                    TextButton(onClick = onClearAttachment) { Text("Xóa") }
+                }
+            }
+            Row(
+                modifier = Modifier.padding(horizontal = 8.dp, vertical = 8.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+            // Attach image button
+            IconButton(onClick = onAttachClick) {
+                Icon(Icons.Default.Add, contentDescription = "Attach image", tint = MaterialTheme.colorScheme.primary)
+            }
+            
+            // Microphone
             IconButton(
                 onClick = onMicClick,
                 modifier = Modifier
@@ -239,7 +316,7 @@ fun ChatInputBar(
                     .weight(1f)
                     .padding(horizontal = 4.dp),
                 shape = RoundedCornerShape(24.dp),
-                colors = TextFieldDefaults.outlinedTextFieldColors(
+                colors = OutlinedTextFieldDefaults.colors(
                     unfocusedBorderColor = Color.Transparent,
                     focusedBorderColor = MaterialTheme.colorScheme.primary
                 )
@@ -247,12 +324,13 @@ fun ChatInputBar(
             
             IconButton(
                 onClick = onSend,
-                enabled = text.isNotBlank()
+                enabled = text.isNotBlank() || attachedBitmap != null
             ) {
                 Icon(Icons.AutoMirrored.Filled.Send, contentDescription = "Send", tint = MaterialTheme.colorScheme.primary)
             }
-        }
-    }
+            } // end Row
+        } // end Column
+    } // end Surface
 }
 
 private fun startListening(context: Context, recognizer: SpeechRecognizer, onResult: (String) -> Unit) {
@@ -286,5 +364,6 @@ private fun startListening(context: Context, recognizer: SpeechRecognizer, onRes
 data class ChatMessage(
     val id: String = java.util.UUID.randomUUID().toString(),
     val text: String,
-    val isUser: Boolean
+    val isUser: Boolean,
+    val attachment: android.graphics.Bitmap? = null
 )
