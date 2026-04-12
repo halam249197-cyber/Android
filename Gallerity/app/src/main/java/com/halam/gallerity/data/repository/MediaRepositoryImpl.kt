@@ -55,7 +55,7 @@ class MediaRepositoryImpl(
                 val name = cursor.getString(nameColumn) ?: ""
                 val size = cursor.getLong(sizeColumn)
                 val mimeType = cursor.getString(mimeTypeColumn) ?: ""
-                val dateAdded = cursor.getLong(dateAddedColumn)
+                val dateAdded = cursor.getLong(dateAddedColumn) * 1000L
                 val folderName = cursor.getString(folderNameColumn) ?: "Unknown"
 
                 mediaFiles.add(

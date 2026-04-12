@@ -12,6 +12,7 @@ import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.*
 import androidx.navigation.NavGraph.Companion.findStartDestination
+import androidx.compose.ui.unit.dp
 import com.halam.gallerity.presentation.home.HomeScreen
 import com.halam.gallerity.presentation.calendar.CalendarScreen
 import com.halam.gallerity.presentation.settings.SettingsScreen
@@ -23,7 +24,11 @@ fun MainScreen(rootNavController: NavHostController) {
 
     Scaffold(
         bottomBar = {
-            NavigationBar {
+            NavigationBar(
+                containerColor = androidx.compose.ui.graphics.Color.Black.copy(alpha = 0.8f),
+                contentColor = androidx.compose.ui.graphics.Color.White,
+                tonalElevation = 0.dp
+            ) {
                 val navBackStackEntry by bottomNavController.currentBackStackEntryAsState()
                 val currentRoute = navBackStackEntry?.destination?.route
 
@@ -47,7 +52,14 @@ fun MainScreen(rootNavController: NavHostController) {
                                 launchSingleTop = true
                                 restoreState = true
                             }
-                        }
+                        },
+                        colors = NavigationBarItemDefaults.colors(
+                            selectedIconColor = MaterialTheme.colorScheme.primary,
+                            selectedTextColor = MaterialTheme.colorScheme.primary,
+                            indicatorColor = androidx.compose.ui.graphics.Color.Transparent,
+                            unselectedIconColor = androidx.compose.ui.graphics.Color.Gray,
+                            unselectedTextColor = androidx.compose.ui.graphics.Color.Gray
+                        )
                     )
                 }
             }
@@ -72,6 +84,9 @@ fun MainScreen(rootNavController: NavHostController) {
                 CalendarScreen(
                     onDayClick = { timestamp ->
                         rootNavController.navigate("day_photos/$timestamp")
+                    },
+                    onMediaClick = { mediaId ->
+                        rootNavController.navigate("image_detail/$mediaId")
                     }
                 )
             }

@@ -34,7 +34,7 @@ fun HomeScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Gallerity", fontWeight = FontWeight.Bold) },
+                title = { Text("Gallerity", fontWeight = FontWeight.Black, style = MaterialTheme.typography.headlineLarge) },
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = MaterialTheme.colorScheme.background
                 )
@@ -43,7 +43,9 @@ fun HomeScreen(
         floatingActionButton = {
             FloatingActionButton(
                 onClick = onChatBotClick,
-                containerColor = MaterialTheme.colorScheme.primaryContainer
+                containerColor = MaterialTheme.colorScheme.primary,
+                shape = androidx.compose.foundation.shape.CircleShape,
+                elevation = FloatingActionButtonDefaults.elevation(defaultElevation = 0.dp)
             ) {
                 Text(text = "✨", modifier = Modifier.padding(16.dp))
             }
@@ -67,7 +69,7 @@ fun HomeScreen(
                         onClick = { selectedTabIndex = index },
                         modifier = Modifier
                             .padding(end = 8.dp)
-                            .clip(RoundedCornerShape(50))
+                            .clip(RoundedCornerShape(50)) // 980dp equivalent pill for tabs
                             .background(
                                 if (isSelected) MaterialTheme.colorScheme.primary
                                 else MaterialTheme.colorScheme.surfaceVariant
@@ -77,7 +79,9 @@ fun HomeScreen(
                             text = title,
                             modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
                             color = if (isSelected) MaterialTheme.colorScheme.onPrimary
-                            else MaterialTheme.colorScheme.onSurfaceVariant
+                            else MaterialTheme.colorScheme.onSurfaceVariant,
+                            style = MaterialTheme.typography.bodyMedium,
+                            fontWeight = if (isSelected) FontWeight.SemiBold else FontWeight.Medium
                         )
                     }
                 }
@@ -144,9 +148,9 @@ fun PhotoGrid(mediaFiles: List<MediaFile>, onImageClick: (Long) -> Unit = {}) {
 
     LazyVerticalGrid(
         columns = GridCells.Adaptive(minSize = 100.dp),
-        contentPadding = PaddingValues(horizontal = 4.dp, vertical = 4.dp),
-        horizontalArrangement = Arrangement.spacedBy(4.dp),
-        verticalArrangement = Arrangement.spacedBy(4.dp),
+        contentPadding = PaddingValues(horizontal = 2.dp, vertical = 2.dp),
+        horizontalArrangement = Arrangement.spacedBy(2.dp),
+        verticalArrangement = Arrangement.spacedBy(2.dp),
         modifier = Modifier.fillMaxSize()
     ) {
         items(mediaFiles, key = { it.id }) { media ->
@@ -156,7 +160,6 @@ fun PhotoGrid(mediaFiles: List<MediaFile>, onImageClick: (Long) -> Unit = {}) {
                 contentScale = ContentScale.Crop,
                 modifier = Modifier
                     .aspectRatio(1f)
-                    .clip(RoundedCornerShape(8.dp))
                     .clickable { onImageClick(media.id) }
             )
         }
@@ -249,7 +252,7 @@ fun AiAlbumList(mediaFiles: List<MediaFile>) {
                 Box(
                     modifier = Modifier
                         .aspectRatio(1f)
-                        .clip(RoundedCornerShape(16.dp))
+                        .clip(RoundedCornerShape(12.dp))
                         .background(MaterialTheme.colorScheme.surfaceVariant)
                 ) {
                     if (coverImage != null) {

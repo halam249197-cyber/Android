@@ -58,9 +58,11 @@ fun SettingsScreen() {
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Cài đặt", fontWeight = FontWeight.Bold) }
+                title = { Text("Cài đặt", fontWeight = FontWeight.Bold, style = MaterialTheme.typography.headlineLarge) },
+                colors = TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.background)
             )
-        }
+        },
+        containerColor = MaterialTheme.colorScheme.background
     ) { padding ->
         Column(
             modifier = Modifier
@@ -79,8 +81,9 @@ fun SettingsScreen() {
             )
 
             Surface(
-                shape = RoundedCornerShape(16.dp),
-                tonalElevation = 2.dp,
+                shape = RoundedCornerShape(12.dp),
+                color = MaterialTheme.colorScheme.surface,
+                tonalElevation = 0.dp,
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Column {
@@ -136,8 +139,9 @@ fun SettingsScreen() {
             )
 
             Surface(
-                shape = RoundedCornerShape(16.dp),
-                tonalElevation = 2.dp,
+                shape = RoundedCornerShape(12.dp),
+                color = MaterialTheme.colorScheme.surface,
+                tonalElevation = 0.dp,
                 modifier = Modifier.fillMaxWidth()
             ) {
                 ListItem(
@@ -171,8 +175,9 @@ fun SettingsScreen() {
             )
 
             Surface(
-                shape = RoundedCornerShape(16.dp),
-                tonalElevation = 2.dp,
+                shape = RoundedCornerShape(12.dp),
+                color = MaterialTheme.colorScheme.surface,
+                tonalElevation = 0.dp,
                 modifier = Modifier.fillMaxWidth()
             ) {
                 ListItem(
@@ -197,8 +202,9 @@ fun SettingsScreen() {
             )
 
             Surface(
-                shape = RoundedCornerShape(16.dp),
-                tonalElevation = 2.dp,
+                shape = RoundedCornerShape(12.dp),
+                color = MaterialTheme.colorScheme.surface,
+                tonalElevation = 0.dp,
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Column {
@@ -230,17 +236,18 @@ fun SettingsScreen() {
             confirmButton = {
                 Button(
                     onClick = { showResetConfirm = false },
-                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error)
+                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error),
+                    shape = androidx.compose.foundation.shape.CircleShape
                 ) {
-                    Text("Xóa hết")
+                    Text("Xóa hết", fontWeight = FontWeight.Bold)
                 }
             },
             dismissButton = {
-                TextButton(onClick = { showResetConfirm = false }) {
+                TextButton(onClick = { showResetConfirm = false }, shape = androidx.compose.foundation.shape.CircleShape) {
                     Text("Hủy")
                 }
             },
-            shape = RoundedCornerShape(24.dp)
+            shape = RoundedCornerShape(16.dp)
         )
     }
 
@@ -268,17 +275,18 @@ fun SettingsScreen() {
                     onClick = {
                         securityViewModel.saveGeminiApiKey(inputKey.trim())
                         showGeminiKeyDialog = false
-                    }
+                    },
+                    shape = androidx.compose.foundation.shape.CircleShape
                 ) {
-                    Text("Lưu")
+                    Text("Lưu", fontWeight = FontWeight.SemiBold)
                 }
             },
             dismissButton = {
-                TextButton(onClick = { showGeminiKeyDialog = false }) {
+                TextButton(onClick = { showGeminiKeyDialog = false }, shape = androidx.compose.foundation.shape.CircleShape) {
                     Text("Hủy")
                 }
             },
-            shape = RoundedCornerShape(24.dp)
+            shape = RoundedCornerShape(16.dp)
         )
     }
 }

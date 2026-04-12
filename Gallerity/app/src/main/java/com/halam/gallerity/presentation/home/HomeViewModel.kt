@@ -10,6 +10,8 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.launch
+import java.time.LocalDate
+import java.time.YearMonth
 import javax.inject.Inject
 
 @HiltViewModel
@@ -19,6 +21,21 @@ class HomeViewModel @Inject constructor(
 
     private val _uiState = MutableStateFlow<HomeUiState>(HomeUiState.Loading)
     val uiState: StateFlow<HomeUiState> = _uiState.asStateFlow()
+
+    // Persistent Calendar State
+    private val _selectedDate = MutableStateFlow(LocalDate.now())
+    val selectedDate: StateFlow<LocalDate> = _selectedDate.asStateFlow()
+
+    private val _displayMonth = MutableStateFlow(YearMonth.now())
+    val displayMonth: StateFlow<YearMonth> = _displayMonth.asStateFlow()
+
+    fun updateSelectedDate(date: LocalDate) {
+        _selectedDate.value = date
+    }
+
+    fun updateDisplayMonth(month: YearMonth) {
+        _displayMonth.value = month
+    }
 
     init {
         loadMediaFiles()

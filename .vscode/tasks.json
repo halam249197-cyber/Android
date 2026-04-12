@@ -1,0 +1,18 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"label": "Clean Gallerity build and log artifacts",
+			"type": "shell",
+			"command": "cmd.exe",
+			"args": [
+				"/c",
+				"rd /s /q build 2>nul & del /f /s /q app\\build\\*.* 2>nul & rd /s /q app\\build 2>nul & del /q build_log.log build_hotfix.log build_error2.log build_error.log build_phase3.log err4.log full_build2.log full_build.log full_build3.log 2>nul & del /q build_output*.txt 2>nul"
+			],
+			"options": {
+				"cwd": "d:\\Agent_WorkSpace\\Android\\Gallerity"
+			},
+			"problemMatcher": []
+		}
+	]
+}
